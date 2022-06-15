@@ -411,7 +411,7 @@ namespace MainWindowLibrary
                 $"Был соверешен перевод средств от клиента {Sender[0].Name} клиенту {Recipeien[0].Name} " +
                 $"в размере {TransferAmount}\n" +
                 $"Баланс отправителя {Sender[0].Balance}\n" +
-                $"Баланс получателя {Recipeien[0].Name}");
+                $"Баланс получателя {Recipeien[0].Balance}");
 
             Sender = new ObservableCollection<Clients>();
             Recipeien = new ObservableCollection<Clients>();
