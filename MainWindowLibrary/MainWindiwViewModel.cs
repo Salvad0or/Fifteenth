@@ -9,22 +9,20 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using Fourteeth.Interface;
-using Fourteeth.Model;
-using Fourteeth.Servises;
-using Fourteeth.ViewModel.Base;
 using Newtonsoft.Json;
 using FifteenthLibrary;
+using System.Runtime.CompilerServices;
 
-
-namespace Fourteeth.ViewModel
+namespace MainWindowLibrary
 {
 
-    internal class MainWindiwViewModel : ViewModels
+
+
+    public class View : ViewModels
     {
         #region Поля и свойства
 
-        
+
         public static ObservableCollection<Repository> ClientsDataBase { get; }
         public int DataGridIndex { get; set; }
 
@@ -41,7 +39,6 @@ namespace Fourteeth.ViewModel
 
 
         #region private Поля
-        private static int _number = 0;
         readonly static string path = @"DataBase.json";
         private string _name;
         private string _surname;
@@ -152,7 +149,8 @@ namespace Fourteeth.ViewModel
 
         #region Поля и свойства окна перевода средств
 
-        public int SenderPhoneNumber {
+        public int SenderPhoneNumber
+        {
 
             get => _senderphonenumber;
             set
@@ -165,8 +163,8 @@ namespace Fourteeth.ViewModel
 
             }
         }
-    
-        public int RecipeienPhoneNumber 
+
+        public int RecipeienPhoneNumber
         {
             get => _recipeienphonenumber;
             set
@@ -175,8 +173,8 @@ namespace Fourteeth.ViewModel
 
                 _recipeienphonenumber = value;
                 OnPropertyChanged();
-                
-                
+
+
             }
         }
 
@@ -300,7 +298,7 @@ namespace Fourteeth.ViewModel
 
         #region Команда поиска отправителя
 
-        public ICommand GetSenderCommand { get;}
+        public ICommand GetSenderCommand { get; }
 
         public bool CanGetSenderDataExecuted(object p) => true;
 
@@ -327,7 +325,7 @@ namespace Fourteeth.ViewModel
 
         #region Команда поиска получателя
 
-        public ICommand GetRecipientCommand { get;}
+        public ICommand GetRecipientCommand { get; }
 
         public bool CanGetRecipientDataExecute(object p) => true;
 
@@ -362,8 +360,8 @@ namespace Fourteeth.ViewModel
         public bool CanTranferMoneyExecuted(object p)
         {
 
-            string sender = String.Empty;
-            string recipeien = String.Empty;
+            string sender = string.Empty;
+            string recipeien = string.Empty;
 
             for (int i = 0; i < Sender.Count; i++)
             {
@@ -390,7 +388,7 @@ namespace Fourteeth.ViewModel
                 MessageBox.Show($"У отправителя {Sender[0].Name} недостаточно средств");
                 return;
             }
-           
+
             for (int i = 0; i < 2; i++)
             {
                 for (int j = 0; j < ClientsDataBase[i].DataBase.Count; j++)
@@ -404,7 +402,7 @@ namespace Fourteeth.ViewModel
                     if (ClientsDataBase[i].DataBase[j].Phone == Recipeien[0].Phone)
                     {
                         ClientsDataBase[i].DataBase[j].Balance += TransferAmount;
-                        DataWorker.SaveData(ClientsDataBase);       
+                        DataWorker.SaveData(ClientsDataBase);
                     }
                 }
             }
@@ -413,8 +411,8 @@ namespace Fourteeth.ViewModel
                 $"Был соверешен перевод средств от клиента {Sender[0].Name} клиенту {Recipeien[0].Name} " +
                 $"в размере {TransferAmount}\n" +
                 $"Баланс отправителя {Sender[0].Balance}\n" +
-                $"Баланс получателя { Recipeien[0].Name}");
-        
+                $"Баланс получателя {Recipeien[0].Name}");
+
             Sender = new ObservableCollection<Clients>();
             Recipeien = new ObservableCollection<Clients>();
             SenderPhoneNumber = default;
@@ -431,9 +429,9 @@ namespace Fourteeth.ViewModel
         public bool CanTellAboutProgramExecuted(object p) => true;
 
         public void OnTellAboutProgramExecute(object p) => AboutProgram.TellAboutProgram();
-        
 
-        #endregion  
+
+        #endregion
 
         #endregion
 
@@ -459,7 +457,7 @@ namespace Fourteeth.ViewModel
                     DataWorker.SaveData(ClientsDataBase);
                     break;
 
-                  
+
             }
         }
         /// <summary>
@@ -480,7 +478,7 @@ namespace Fourteeth.ViewModel
                 case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
                     DataWorker.SaveData(ClientsDataBase);
                     break;
-                
+
             }
 
         }
@@ -488,7 +486,7 @@ namespace Fourteeth.ViewModel
         #endregion
 
         #region Конструкторы
-        public MainWindiwViewModel()
+        public View()
         {
             Sender = new ObservableCollection<Clients>();
             Recipeien = new ObservableCollection<Clients>();
@@ -497,7 +495,7 @@ namespace Fourteeth.ViewModel
 
             DeleteClient = new LamdaCommand(OnDeleteGroupCommandExecuted, CanDeleteCommandExecute);
             AddsNewClientCommand = new LamdaCommand(OnAddsNewClientExecuted, CanAddsNewClientExecute);
-            GetSenderCommand = new LamdaCommand(OnGetSenderDataExecute, CanGetSenderDataExecuted);  
+            GetSenderCommand = new LamdaCommand(OnGetSenderDataExecute, CanGetSenderDataExecuted);
             GetRecipientCommand = new LamdaCommand(OnGetRecipeientDataExecuted, CanGetRecipientDataExecute);
             TransferMoneyCommand = new LamdaCommand(OnTransferMoneyExecuted, CanTranferMoneyExecuted);
             AboutProgramCommand = new LamdaCommand(OnTellAboutProgramExecute, CanTellAboutProgramExecuted);
@@ -505,11 +503,11 @@ namespace Fourteeth.ViewModel
             ClientsDataBase[0].DataBase.CollectionChanged += DataBase_CollectionChanged;
             ClientsDataBase[1].DataBase.CollectionChanged += DataBase_CollectionChanged1;
 
-            
+
         }
-        static MainWindiwViewModel()
+        static View()
         {
-            ClientsDataBase = JsonConvert.DeserializeObject<ObservableCollection<Repository>>(File.ReadAllText(path));  
+            ClientsDataBase = JsonConvert.DeserializeObject<ObservableCollection<Repository>>(File.ReadAllText(path));
         }
         #endregion
 
@@ -546,6 +544,115 @@ namespace Fourteeth.ViewModel
 
         #endregion
 
+
+    }
+
+    public static class DataWorker
+    {
+        const string path = @"DataBase.json";
+        public static void SaveData(ObservableCollection<Repository> DataBase)
+        {
+            File.WriteAllText(path, JsonConvert.SerializeObject(DataBase));
+        }
+    }
+
+    public class ViewModels : INotifyPropertyChanged
+    {
+        public event PropertyChangedEventHandler PropertyChanged;
+
+
+
+        public virtual void OnPropertyChanged([CallerMemberNameAttribute] string name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+    }
+
+    public class Repository : ViewModels
+    {
+        public string Name { get; set; }
+        public ObservableCollection<Clients> DataBase { get; set; }
+
+
+    }
+
+    public class Clients
+    {
+        public string Name { get; set; }
+
+        public string SurName { get; set; }
+
+        public int Phone { get; set; }
+
+        public int Balance { get; set; }
+
+        public string Passport { get; set; }
+
+        public string Comments { get; set; }
+
+        public Clients(string name, string surName, int phone, string passport, int balance, string comments = null)
+        {
+            Name = name;
+            SurName = surName;
+            Phone = phone;
+            Passport = passport;
+            Balance = balance;
+            Comments = comments;
+        }
+
+        public Clients()
+        {
+
+        }
+    }
+
+    public class ActionWindowData
+    {
+        public string Text { get; set; }
+
+        public string Date { get; set; }
+
+        public ActionWindowData(string text, string date)
+        {
+            Text = text;
+            Date = date;
+        }
+
+        public ActionWindowData()
+        {
+
+        }
+    }
+
+    public class LamdaCommand : BaseCommand
+    {
+        private readonly Action<object> _execute;
+        private readonly Func<object, bool> _canExecute;
+
+        public LamdaCommand(Action<object> execute, Func<object, bool> canExecute)
+        {
+            _execute = execute;
+            _canExecute = canExecute;
+        }
+
+        public override bool CanExecute(object? parameter) => _canExecute?.Invoke(parameter) ?? true;
+
+
+        public override void Execute(object? parameter) => _execute(parameter);
+
+    }
+
+    public abstract class BaseCommand : ICommand
+    {
+        public event EventHandler CanExecuteChanged
+        {
+            add => CommandManager.RequerySuggested += value;
+            remove => CommandManager.RequerySuggested -= value;
+        }
+
+        public abstract bool CanExecute(object? parameter);
+
+        public abstract void Execute(object? parameter);
 
     }
 }
