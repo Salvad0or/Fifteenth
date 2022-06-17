@@ -12,11 +12,14 @@ using System.Windows.Input;
 using Newtonsoft.Json;
 using FifteenthLibrary;
 using System.Runtime.CompilerServices;
+using MainWindowLibrary.Interface.Base_command;
+using MainWindowLibrary.Interface;
+using MainWindowLibrary.ViewModel.ViewModels;
+using MainWindowLibrary.Services;
+using MainWindowLibrary.Models;
 
 namespace MainWindowLibrary
 {
-
-
 
     public class View : ViewModels
     {
@@ -305,20 +308,31 @@ namespace MainWindowLibrary
 
         public void OnGetSenderDataExecute(object p)
         {
-            Sender = new ObservableCollection<Clients>();
+            Sender = new ObservableCollection<Clients>();     
 
-            for (int i = 0; i < 2; i++)
+            try
             {
-                for (int j = 0; j < ClientsDataBase[i].DataBase.Count; j++)
+                for (int i = 0; i < 2; i++)
                 {
-                    if (SenderPhoneNumber == ClientsDataBase[i].DataBase[j].Phone)
+                    for (int j = 0; j < ClientsDataBase[i].DataBase.Count; j++)
                     {
-                        Sender.Add(ClientsDataBase[i].DataBase[j]);
-                        return;
+                        if (SenderPhoneNumber == ClientsDataBase[i].DataBase[j].Phone)
+                        {
+                            Sender.Add(ClientsDataBase[i].DataBase[j]);
+                            return;
+                        }
                     }
                 }
+
+                throw new CustomException("Клиент не был найден", 1);
             }
-            MessageBox.Show("Клиент не найден");
+            catch (CustomException e)
+            {
+
+                MessageBox.Show($"{e.Message}. Код ошибки: {e.ErrorCode}.");
+            }
+
+            
         }
 
         #endregion
@@ -336,19 +350,29 @@ namespace MainWindowLibrary
 
             Recipeien = new ObservableCollection<Clients>();
 
-            for (int i = 0; i < 2; i++)
+
+            try
             {
-                for (int j = 0; j < ClientsDataBase[i].DataBase.Count; j++)
+                for (int i = 0; i < 2; i++)
                 {
-                    if (RecipeienPhoneNumber == ClientsDataBase[i].DataBase[j].Phone)
+                    for (int j = 0; j < ClientsDataBase[i].DataBase.Count; j++)
                     {
-                        Recipeien.Add(ClientsDataBase[i].DataBase[j]);
-                        return;
+                        if (RecipeienPhoneNumber == ClientsDataBase[i].DataBase[j].Phone)
+                        {
+                            Recipeien.Add(ClientsDataBase[i].DataBase[j]);
+                            return;
+                        }
                     }
                 }
-            }
 
-            MessageBox.Show("Клиент не найден");
+                throw new CustomException("Клиент не найден",1);
+            }
+            catch (CustomException e) when (e.ErrorCode == 1)
+            {
+
+                MessageBox.Show($"{e.Message}. Код ошибки: {e.ErrorCode}.");
+            }
+           
         }
 
         #endregion
@@ -456,8 +480,6 @@ namespace MainWindowLibrary
                 case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
                     DataWorker.SaveData(ClientsDataBase);
                     break;
-
-
             }
         }
         /// <summary>
@@ -478,9 +500,7 @@ namespace MainWindowLibrary
                 case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
                     DataWorker.SaveData(ClientsDataBase);
                     break;
-
             }
-
         }
 
         #endregion
@@ -546,113 +566,5 @@ namespace MainWindowLibrary
 
 
     }
-
-    public static class DataWorker
-    {
-        const string path = @"DataBase.json";
-        public static void SaveData(ObservableCollection<Repository> DataBase)
-        {
-            File.WriteAllText(path, JsonConvert.SerializeObject(DataBase));
-        }
-    }
-
-    public class ViewModels : INotifyPropertyChanged
-    {
-        public event PropertyChangedEventHandler PropertyChanged;
-
-
-
-        public virtual void OnPropertyChanged([CallerMemberNameAttribute] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-    }
-
-    public class Repository : ViewModels
-    {
-        public string Name { get; set; }
-        public ObservableCollection<Clients> DataBase { get; set; }
-
-
-    }
-
-    public class Clients
-    {
-        public string Name { get; set; }
-
-        public string SurName { get; set; }
-
-        public int Phone { get; set; }
-
-        public int Balance { get; set; }
-
-        public string Passport { get; set; }
-
-        public string Comments { get; set; }
-
-        public Clients(string name, string surName, int phone, string passport, int balance, string comments = null)
-        {
-            Name = name;
-            SurName = surName;
-            Phone = phone;
-            Passport = passport;
-            Balance = balance;
-            Comments = comments;
-        }
-
-        public Clients()
-        {
-
-        }
-    }
-
-    public class ActionWindowData
-    {
-        public string Text { get; set; }
-
-        public string Date { get; set; }
-
-        public ActionWindowData(string text, string date)
-        {
-            Text = text;
-            Date = date;
-        }
-
-        public ActionWindowData()
-        {
-
-        }
-    }
-
-    public class LamdaCommand : BaseCommand
-    {
-        private readonly Action<object> _execute;
-        private readonly Func<object, bool> _canExecute;
-
-        public LamdaCommand(Action<object> execute, Func<object, bool> canExecute)
-        {
-            _execute = execute;
-            _canExecute = canExecute;
-        }
-
-        public override bool CanExecute(object? parameter) => _canExecute?.Invoke(parameter) ?? true;
-
-
-        public override void Execute(object? parameter) => _execute(parameter);
-
-    }
-
-    public abstract class BaseCommand : ICommand
-    {
-        public event EventHandler CanExecuteChanged
-        {
-            add => CommandManager.RequerySuggested += value;
-            remove => CommandManager.RequerySuggested -= value;
-        }
-
-        public abstract bool CanExecute(object? parameter);
-
-        public abstract void Execute(object? parameter);
-
-    }
+     
 }
